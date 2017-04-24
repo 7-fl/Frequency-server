@@ -40,8 +40,11 @@ it is killed  (by virtue of being linked to the server) to do:
 ```
 which would cause a badarg error.  I tested out that theory by 
 putting a sleep at the top of the adpater process's loop, and it does cause
-a badarg error, but all the processes still shutdown, so
-I'm calling it good.
+a badarg error, but all the processes still shutdown.
+
+A more serious problem that could occur is that an adapter process is unlinked
+when the server is killed.  That would mean shutting down the system would fail
+to kill the adapter process.  Oh, boy.
 
 In the shell:
 ```erlang
