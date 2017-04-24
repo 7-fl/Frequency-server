@@ -30,7 +30,7 @@ in response to stop().
 If I happen to kill a client immediately after it sends a message
 to the adapter, and then I kill the server before the corresponding
 message from
-the adapter is sent, the adapter might live long enough before it
+the adapter is sent to the server, the adapter might live long enough before it
 it is killed  (by virtue of being linked to the server) to do:
 ```erlang
     f3 ! Msg
