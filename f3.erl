@@ -28,6 +28,7 @@
 %
 % (client) <-> (request_adapter --> allocate/deallocate)  <->  (server)
 %                                                         link   trap
+%
 % To shutdown the whole system,
 % I called exit(Client, shutdown) on each client, where the atom
 % shutdown is just a random atom different from the atom normal.
@@ -55,7 +56,7 @@
 % I used test1() so that I could use the observer to kill 
 % the server and make sure the clients were unaffected.
 test1() ->
-    spawn(f3, test_process1, []). %Enables me to execute observer:start() in the shell.
+    spawn(f3, test_process1, []).  %Enables me to execute observer:start() in the shell
 
 test_process1() ->
     start(),
@@ -63,10 +64,7 @@ test_process1() ->
     _Client2 = spawn(f3, client_init, [2, 2500]).
   
 % I used test2() to work on shutting down the whole system myself.
-test2() -> 
-    spawn(f3, test_process2, []).  %Enables me to execute observer:start() in the shell.
-
-test_process2() ->
+test2() ->
     start(),
     Client1 = spawn(f3, client_init, [1, 5000]),
     Client2 = spawn(f3, client_init, [2, 2500]),
