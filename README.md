@@ -31,9 +31,9 @@ the server because the server is trapping exits.
 
 **Problems**: It seems to me that there is a race condition in my code.
 If I happen to kill a client immediately after it sends a message
-to the adapter, and then I kill the server before the corresponding
+to the adapter process, and then I kill the server before the corresponding
 message from
-the adapter is sent to the server, the adapter might live long enough before it
+the adapter process is sent to the server, the adapter process might live long enough before it
 it is killed  (by virtue of being linked to the server) to do:
 ```erlang
     f3 ! Msg
