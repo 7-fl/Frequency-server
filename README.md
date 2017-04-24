@@ -16,7 +16,8 @@ Process diagram:
 (client) <-> (request_adapter --> allocate/deallocate)  <->  (server)
                                                         link   trap
                                                         
-```                         
+``` 
+**Edit: I realized this wouldn't work, so I changed my code(see Problems section):**
 To shutdown the whole system,
 I called ```exit(Client, shutdown)``` on each client, where the atom
 **shutdown** is just a random atom different from the atom **normal**.
