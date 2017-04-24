@@ -55,7 +55,7 @@
 % I used test1() so that I could use the observer to kill 
 % the server and make sure the clients were unaffected.
 test1() ->
-    spawn(f3, test_process1, []).
+    spawn(f3, test_process1, []). %Enables me to execute observer:start() in the shell.
 
 test_process1() ->
     start(),
