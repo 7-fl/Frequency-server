@@ -26,7 +26,8 @@ Then I called ```exit(Server, kill)``` on the server, which also kills
 the linked adapter processes.  Calling ```stop()``` on the 
 sever is problematic because it does not cause the adapter processes
 that are linked to the server to shutdown because the sever exits normally 
-in response to ```stop()```.
+in response to ```stop()```.  And calling ```exit(Server, shutdown)``` doesn't kill
+the server because the server is trapping exits.
 
 **Problems**: It seems to me that there is a race condition in my code.
 If I happen to kill a client immediately after it sends a message
