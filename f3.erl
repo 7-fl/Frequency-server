@@ -75,7 +75,6 @@ test2() ->
 
 client_init(Id, Sleep) ->
     RequestAdapter = spawn(f3, request_adapter, []),
-    %process_flag(trap_exit, true),
     client(Id, Sleep, RequestAdapter).
 
 %--------------
