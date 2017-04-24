@@ -39,7 +39,7 @@ it is killed  (by virtue of being linked to the server) to do:
     f3 ! Msg
 ```
 which would cause a badarg error.  I tested out that theory by 
-putting a timeout at the top of the adpater, and it does cause
+putting a sleep at the top of the adpater process's loop, and it does cause
 a badarg error, but all the processes still shutdown, so
 I'm calling it good.
 
