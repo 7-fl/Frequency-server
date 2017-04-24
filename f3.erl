@@ -14,6 +14,7 @@
 -include_lib("eunit/include/eunit.hrl").
 
 % Process diagram:
+%
 %  ()   process
 %  <->  message sending between processes
 %  -->  function call
