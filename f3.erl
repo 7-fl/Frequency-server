@@ -25,7 +25,7 @@
 
 %--------------
 
-% I used test1() so that I could use the observer to kill 
+% I used test1() so that I could use the observer application to kill 
 % the server and make sure the clients were unaffected.
 test1() ->
     spawn(f3, test_process1, []).  %Enables me to execute observer:start() in the shell
@@ -78,7 +78,7 @@ client(Id, Sleep, RequestAdapter) ->
             io:format("client~w (~w): **no frequencies available**~n", [Id, self()]),
             client(Id, Sleep, RequestAdapter);
         %The following stop clause handles the case  when the client sent an allocate
-        %message to the adpater, but has not received a reply from the adapter yet.
+        %message to the adpater, but the client has not received a reply from the adapter yet.
         %In other words, the client is blocking on this receive clause.
         stop ->  
             io:format("---client~w shutting down request_adapter: ~w~n", [Id, RequestAdapter]),
