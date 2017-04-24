@@ -52,7 +52,7 @@ client_init(Id, Sleep) ->
 %--------------
 
 request_adapter() ->
-    %timer:sleep(1000),  %For testing race condition.
+    %timer:sleep(1000),  %For testing race condition. See first paragraph in Problems section of Readme.
     receive
         {allocate, Sender} ->  %Client sends this message to the adapter.
             Response = allocate(),  %The adapter calls allocate()/deallocate() and gets the return value.
