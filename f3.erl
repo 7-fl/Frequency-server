@@ -28,6 +28,8 @@
 %
 % (client) <-> (request_adapter --> allocate/deallocate)  <->  (server)
 %                                                         link   trap
+%
+%
 % To shutdown the whole system,
 % I called exit(Client, shutdown) on each client, where the atom
 % shutdown is just a random atom different from the atom normal.
