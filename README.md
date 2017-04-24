@@ -17,14 +17,16 @@ Process diagram:
                                                         link   trap
                                                         
 ```                         
-To shutdown the whole system, 
-I called ```exit(Client, shutdown)``` on each client, where the atom **shutdown** is 
-just a random atom different from the atom **normal**. That causes each
-client to immediately end its allocate/deallocate message sending to the adapter process. 
-Then I called ```exit(Server, kill)``` on the server. Calling ```stop()``` on the 
-sever is problematic because it does not cause the adapter process that
-is linked to the server to shutdown because the sever exits normally 
-in response to stop().
+To shutdown the whole system,
+I called ```exit(Client, shutdown)``` on each client, where the atom
+**shutdown** is just a random atom different from the atom **normal**.
+That causes each
+client to immediately end its allocate/deallocate message sending. 
+Then I called ```exit(Server, kill)``` on the server, which also kills
+the linked adapter processes.  Calling ```stop()``` on the 
+sever is problematic because it does not cause the adapter processes
+that are linked to the server to shutdown because the sever exits normally 
+in response to ```stop()```.
 
 **Problems**: It seems to me that there is a race condition in my code.
 If I happen to kill a client immediately after it sends a message
