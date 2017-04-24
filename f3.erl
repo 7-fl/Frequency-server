@@ -63,7 +63,7 @@ test_process1() ->
     _Client1 = spawn(f3, client_init, [1, 5000]),
     _Client2 = spawn(f3, client_init, [2, 2500]).
   
-% I used test2() to work on shutting down the whole system myself.
+% I used test2() to work on shutting down the whole system with code.
 test2() ->
     start(),
     Client1 = spawn(f3, client_init, [1, 5000]),
