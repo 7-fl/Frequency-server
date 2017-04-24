@@ -43,8 +43,8 @@ putting a sleep at the top of the adpater process's loop, and it does cause
 a badarg error, but all the processes still shutdown.
 
 A more serious problem that could occur is that an adapter process is unlinked
-when the server is killed.  That would mean shutting down the system would fail
-to kill the adapter process.  Oh, boy.
+when the server is killed.  That would mean shutting down the system failed
+to kill an adapter process, which would live on forever. Oh, boy.
 
 In the shell:
 ```erlang
