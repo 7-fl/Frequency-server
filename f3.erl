@@ -40,7 +40,7 @@ test2() ->
     start(),
     Client1 = spawn(f3, client_init, [1, 5000]),
     Client2 = spawn(f3, client_init, [2, 2500]),
-    timer:sleep(15000),  %Let the clients send requests to the server for awhile,
+    timer:sleep(15000),  %Let the clients send requests to the server for awhile.
     shutdown_system([Client1, Client2], f3).
 
 %--------------
