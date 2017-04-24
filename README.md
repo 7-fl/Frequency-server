@@ -6,7 +6,7 @@ which will also take down the (linked) adapter process, the client will end up
 waiting indefinitely in a receive--unaffected by the server failing.  As far as 
 the client knows, the server is busy.
 
-```erlang
+```
 Process diagram:
 
  ()   process
