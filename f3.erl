@@ -79,6 +79,7 @@ client(Id, Sleep, RequestAdapter) ->
             client(Id, Sleep, RequestAdapter);
         %The following stop clause handles the case  when the client sent an allocate
         %message to the adpater, but has not received a reply from the adapter yet.
+        %In other words, the client is blocking on this receive clause.
         stop ->  
             io:format("---client~w shutting down request_adapter: ~w~n", [Id, RequestAdapter]),
             exit(RequestAdapter, shutdown) 
@@ -95,7 +96,7 @@ do_deallocation(Freq, Id, Sleep, RequestAdapter) ->
             client(Id, Sleep, RequestAdapter);
         %The following stop clause handles the case where the client got a frequency from the adapter, 
         %then sent a deallocate message to the adapter, and is now waiting for a deallocate confirmation 
-        %message from the adapter:
+        %message from the adapter.  In other words, the client is blocking on this receive clause.
         stop ->  
             io:format("---client~w shutting down request_adapter: ~w~n", [Id, RequestAdapter]),
             exit(RequestAdapter, shutdown);
