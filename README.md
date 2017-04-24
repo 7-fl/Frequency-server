@@ -8,6 +8,7 @@ the client knows, the server is busy.
 
 ```erlang
 Process diagram:
+
  ()   process
  <->  message sending between processes
  -->  function call
