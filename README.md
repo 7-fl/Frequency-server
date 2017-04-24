@@ -44,7 +44,8 @@ a badarg error, but all the processes still shutdown.
 
 A more serious problem that could occur is that an adapter process is unlinked
 when the server is killed.  That would mean shutting down the system failed
-to kill an adapter process, which would live on forever. Oh, boy.
+to kill an adapter process, which would live on forever. The implication is that
+you can't rely on the server to kill the processes that are linked to it.  Oh, boy.
 
 In the shell:
 ```erlang
