@@ -17,10 +17,10 @@ Process diagram:
                                                         
 ```                         
 To shutdown the whole system, 
-I called exit(Client, shutdown) on each client, where the atom shutdown is 
+I called ```exit(Client, shutdown)``` on each client, where the atom shutdown is 
 just a random atom different from the atom normal. That causes each
 client to immediately end its allocate/deallocate looping. 
-Then I called exit(Server, kill) on the server. Calling stop() on the 
+Then I called ```exit(Server, kill)``` on the server. Calling ```stop()``` on the 
 sever is problematic because it does not cause the adapter process that
 is linked to the server to shutdown because the sever exits normally 
 in response to stop().
