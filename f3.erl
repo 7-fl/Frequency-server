@@ -10,7 +10,7 @@
 -export([start/0,allocate/0,deallocate/1,stop/0]).
 -export([init/0]).
 -export([client/3, client_init/2, request_adapter/0]).
--export([test1/0, test_process1/0, test2/0, test_process2/0]).
+-export([test1/0, test_process1/0, test2/0]).
 -include_lib("eunit/include/eunit.hrl").
 
 %I wrote an adapter pattern for the allocate/deallocate methods so that the client 
@@ -28,15 +28,15 @@
 %
 % (client) <-> (request_adapter --> allocate/deallocate)  <->  (server)
 %                                                         link   trap
-%
 % To shutdown the whole system,
 % I called exit(Client, shutdown) on each client, where the atom
 % shutdown is just a random atom different from the atom normal.
 % That causes each
-% client to immediately end its allocate/deallocate looping. 
-% Then I called exit(Server, kill) on the server. Calling stop() on the 
-% sever is problematic because it does not cause the adapter process that
-% is linked to the server to shutdown because the sever exits normally 
+% client to immediately end its allocate/deallocate message sending. 
+% Then I called exit(Server, kill) on the server, which also kills
+% the linked adapter processes.  Calling stop() on the 
+% sever is problematic because it does not cause the adapter processes
+% that are linked to the server to shutdown because the sever exits normally 
 % in response to stop().
 %
 % Problems: It seems to me that there is a race condition in my code.
@@ -54,7 +54,7 @@
 %--------------
 
 % I used test1() so that I could use the observer to kill 
-% the server and make sure the clients were unaffected.
+% the server and make sure the clients are unaffected.
 test1() ->
     spawn(f3, test_process1, []).  %Enables me to execute observer:start() in the shell
 
@@ -63,7 +63,7 @@ test_process1() ->
     _Client1 = spawn(f3, client_init, [1, 5000]),
     _Client2 = spawn(f3, client_init, [2, 2500]).
   
-% I used test2() to work on shutting down the whole system with code.
+% I used test2() to work on shutting down the whole system myself.
 test2() ->
     start(),
     Client1 = spawn(f3, client_init, [1, 5000]),
@@ -101,22 +101,35 @@ client(Id, Sleep, RequestAdapter) ->
         {RequestAdapter, {ok, Freq}} -> 
             io:format("client~w (~w) given frequency: ~w~n", [Id, self(), Freq] ),
             timer:sleep(Sleep),
-            do_deallocation(Freq, RequestAdapter, Id),
-            client(Id, Sleep, RequestAdapter);
+            do_deallocation(Freq, Id, Sleep, RequestAdapter);
         {RequestAdapter, {error, no_frequency}} ->
             io:format("client~w (~w): **no frequencies available**~n", [Id, self()]),
-            client(Id, Sleep, RequestAdapter)
+            client(Id, Sleep, RequestAdapter);
+        %The following stop clause handles the case  when the client sent an allocate
+        %message to the adpater, but has not received a reply from the adapter yet.
+        stop ->  
+            io:format("---client~w shutting down request_adapter: ~w~n", [Id, RequestAdapter]),
+            exit(RequestAdapter, shutdown) 
+                                                            
     end.
 
 %------------
 
-do_deallocation(Freq, RequestAdapter, Id) ->
+do_deallocation(Freq, Id, Sleep, RequestAdapter) ->
     RequestAdapter ! {deallocate, Freq, self()},
     receive
         ok ->
-            io:format("client~w (~w) deallocated frequency: ~w~n", [Id, self(), Freq]);
+            io:format("client~w (~w) got deallocate reply for frequency: ~w~n", [Id, self(), Freq]),
+            client(Id, Sleep, RequestAdapter);
+        %The following stop clause handles the case where the client got a frequency from the adapter, 
+        %then sent a deallocate message to the adapter, and is now waiting for a deallocate confirmation 
+        %message from the adapter:
+        stop ->  
+            io:format("---client~w shutting down request_adapter: ~w~n", [Id, RequestAdapter]),
+            exit(RequestAdapter, shutdown);
         _Other ->
-            io:format("client~w (~w) couldn't deallocate frequency: ~w~n", [Id, self(), Freq])
+            io:format("client~w (~w) couldn't deallocate frequency: ~w~n", [Id, self(), Freq]),
+            client(Id, Sleep, RequestAdapter)
     end.                                        
  
 %--------------
@@ -130,14 +143,16 @@ shutdown_clients([]) ->
     all_clients_shutdown;
 shutdown_clients([Client|Clients]) ->
     io:format("---Shutting down client: ~w~n", [Client]),
-    exit(Client, shutdown),
+    %exit(Client, shutdown),
+    Client ! stop,
     shutdown_clients(Clients).
 
 shutdown_server(undefined) ->
     server_already_shutdown;
 shutdown_server(Pid) ->
     io:format("---Shutting down server: ~w~n", [Pid]),
-    exit(Pid, kill).
+    %exit(Pid, kill).
+    stop().
 
 %------------------------------------------------------
 %--- No changes to the server code we were given   ----
@@ -208,7 +223,9 @@ allocate({[Freq|Free], Allocated}, Pid) ->
 
 deallocate({Free, Allocated}, Freq) ->
   {value,{Freq,Pid}} = lists:keysearch(Freq,1,Allocated),  %%% ADDED
-  unlink(Pid),                                             %%% ADDED
+  unlink(Pid),  
+  io:format("server deallocating frequency: ~w~n", [Freq]),
+  timer:sleep(3000),                                           %%% ADDED
   NewAllocated=lists:keydelete(Freq, 1, Allocated),
   {[Freq|Free],  NewAllocated}.
 
