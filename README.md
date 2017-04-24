@@ -40,7 +40,7 @@ it is killed  (by virtue of being linked to the server) to do:
 ```
 which would cause a badarg error.  I tested out that theory by 
 putting a timeout at the top of the adpater, and it does cause
-a badarg exception, but all the processes still shutdown, so
+a badarg error, but all the processes still shutdown, so
 I'm calling it good.
 
 ```erlang
