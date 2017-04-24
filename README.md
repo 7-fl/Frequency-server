@@ -40,12 +40,21 @@ it is killed  (by virtue of being linked to the server) to do:
 ```
 which would cause a badarg error.  I tested out that theory by 
 putting a sleep at the top of the adpater process's loop, and it does cause
-a badarg error, but all the processes still shutdown.
+a badarg error, but all the processes still shutdown, so I'm going to accept
+that as a successful shutdown.
 
-A more serious problem that could occur is that an adapter process is unlinked
-when the server is killed.  That would mean shutting down the system failed
+A more serious problem that could occur is that an adapter process is an unlinked
+state when the server is killed.  That would mean killing the server would fail
 to kill an adapter process, which would live on forever. The implication is that
-you can't rely on the server to kill the processes that are linked to it.  Oh, boy.
+you can't rely on the server to kill the processes that are linked to it.  
+Back to the drawing board.
+
+Because I can't rely on the server to kill the linked processes, I redid my code to call 
+stop() to kill the server, and I added some stop clauses to the client's receive, which take 
+care of killing its adapter process.  For testing purposes, I added a sleep to the server's 
+internal deallocate() method, right after the call to unlink(), so that I could verify that
+my code would be able to shut down the whole system if an adapter process was in an unlinked
+state.
 
 In the shell:
 ```erlang
@@ -55,23 +64,20 @@ In the shell:
 2> f3:test2().
 client1 (<0.44.0>) given frequency: 10
 client2 (<0.45.0>) given frequency: 11
-client2 (<0.45.0>) deallocated frequency: 11
-client2 (<0.45.0>) given frequency: 11
-client1 (<0.44.0>) deallocated frequency: 10
-client1 (<0.44.0>) given frequency: 10
-client2 (<0.45.0>) deallocated frequency: 11
-client2 (<0.45.0>) given frequency: 11
-client2 (<0.45.0>) deallocated frequency: 11
-client2 (<0.45.0>) given frequency: 11
-client1 (<0.44.0>) deallocated frequency: 10
-client1 (<0.44.0>) given frequency: 10
-client2 (<0.45.0>) deallocated frequency: 11
-client2 (<0.45.0>) given frequency: 11
-client2 (<0.45.0>) deallocated frequency: 11
-client2 (<0.45.0>) given frequency: 11
+server deallocating frequency: 11
+server deallocating frequency: 10
+client2 (<0.45.0>) got deallocate reply for frequency: 11
+client1 (<0.44.0>) got deallocate reply for frequency: 10
+client2 (<0.45.0>) given frequency: 10
+client1 (<0.44.0>) given frequency: 11
+server deallocating frequency: 10
+server deallocating frequency: 11
+client2 (<0.45.0>) got deallocate reply for frequency: 10
 ---Shutting down client: <0.44.0>
 ---Shutting down client: <0.45.0>
+---client1 shutting down request_adapter: <0.46.0>
 ---Shutting down server: <0.43.0>
+---client2 shutting down request_adapter: <0.47.0>
 system_shutdown
 
 3> i().
@@ -79,7 +85,7 @@ Pid                   Initial Call                          Heap     Reds Msgs
 Registered            Current Function                     Stack              
 <0.0.0>               otp_ring0:start/2                     1598     3216    0
 init                  init:loop/1                              2              
-<0.3.0>               erlang:apply/2                        6772   652123    0
+<0.3.0>               erlang:apply/2                        6772   652227    0
 erl_prim_loader       erl_prim_loader:loop/3                   6              
 <0.6.0>               gen_event:init_it/6                    376      223    0
 error_logger          gen_event:fetch_msg/5                    8              
@@ -113,13 +119,13 @@ standard_error_sup    gen_server:loop/6                        9
 standard_error        standard_error:server_loop/1             2              
 <0.22.0>              supervisor_bridge:user_sup/1           233       60    0
                       gen_server:loop/6                        9              
-<0.23.0>              user_drv:server/2                     2586     3240    0
+<0.23.0>              user_drv:server/2                     2586     3697    0
 user_drv              user_drv:server_loop/5                   8              
 <0.24.0>              group:server/3                         233      192    0
 user                  group:server_loop/3                      4              
-<0.25.0>              group:server/3                        1598    15067    0
+<0.25.0>              group:server/3                        1598    14734    0
                       group:server_loop/3                      4              
-<0.26.0>              erlang:apply/2                       17731     3947    0
+<0.26.0>              erlang:apply/2                       17731     3946    0
                       shell:shell_rep/4                       17              
 <0.27.0>              kernel_config:init/1                   233      286    0
                       gen_server:loop/6                        9              
@@ -127,10 +133,12 @@ user                  group:server_loop/3                      4
 kernel_safe_sup       gen_server:loop/6                        9              
 <0.32.0>              erlang:apply/2                         376    19705    0
                       c:pinfo/1                               50              
-Total                                                      40834   866598    0
+Total                                                      40834   866825    0
                                                              219              
 ok
+
 4> 
+
 ```
 
 
