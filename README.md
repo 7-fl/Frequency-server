@@ -43,9 +43,8 @@ putting a sleep at the top of the adpater process's loop, and it does cause
 a badarg error, but all the processes still shutdown, so
 I'm calling it good.
 
-```erlang
 In the shell:
-
+```erlang
 1> c(f3).
 {ok,f3}
 
