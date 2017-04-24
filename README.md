@@ -1,8 +1,8 @@
 I wrote an adapter pattern for the ```allocate()```/```deallocate()``` methods so that the client 
 can communicate with the adapter by sending and receiving messages--rather than 
 calling ```allocate()``` and ```deallocate()``` directly.  That way the client can sit in a
-receive waiting for messages from the adapter process, and if the server fails,
-which will also take down the (linked) adapter process, the client will end up 
+receive waiting for messages from the adapter process, and if the server or the adapter process 
+fails, the client will end up 
 waiting indefinitely in a receive--unaffected by the server failing.  As far as 
 the client knows, the server is busy.
 
